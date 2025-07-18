@@ -147,28 +147,43 @@ class FileController extends Controller
     /**
      * Recupera i tag associati a un file su S3/MinIO
      */
-    private function getFileTags($diskName, $file)
-    {
-        try {
-            $client = Storage::disk($diskName)->getAdapter()->getClient();
-            $bucket = env('MINIO_BUCKET');  // Usa il bucket MinIO configurato
 
-            // Recupera i tag
-            $result = $client->getObjectTagging([
-                'Bucket' => $bucket,
-                'Key'    => $file,
-            ]);
+private function getFileTags($diskName, $file)
+{
+    try {
+        // Ottieni la configurazione del disco
+        $cfg = config("filesystems.disks.$diskName");
 
-            // Estrai e restituisci i tag come un array associativo
-            return collect($result->get('TagSet'))
-                ->pluck('Value', 'Key')
-                ->toArray();
+        // Crea l'istanza del client S3
+        $client = new S3Client([
+            'version' => 'latest',
+            'region' => $cfg['region'],
+            'endpoint' => $cfg['endpoint'] ?? null,
+            'credentials' => [
+                'key' => $cfg['key'],
+                'secret' => $cfg['secret'],
+            ],
+        ]);
 
-        } catch (\Exception $e) {
-            Log::warning("[FileManager] Error retrieving tags for file: {$file}. Error: " . $e->getMessage());
-            return [];  // Nessun tag trovato
-        }
+        $bucket = $cfg['bucket']; // Usa il bucket configurato
+
+        // Recupera i tag
+        $result = $client->getObjectTagging([
+            'Bucket' => $bucket,
+            'Key'    => $file,
+        ]);
+
+        // Estrai e restituisci i tag come un array associativo
+        return collect($result->get('TagSet'))
+            ->pluck('Value', 'Key')
+            ->toArray();
+
+    } catch (\Exception $e) {
+        Log::warning("[FileManager] Error retrieving tags for file: {$file}. Error: " . $e->getMessage());
+        return [];  // Nessun tag trovato
     }
+}
+
 
     public function generateTempLink(NovaRequest $request)
     {
