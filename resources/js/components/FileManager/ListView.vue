@@ -67,10 +67,10 @@
       </div>
       
       <!-- Tipo (Tag) -->
-      <div class="fm-list-tags">
-        {{ item.tags && item.tags.type ? item.tags.type : ' - ' }}
-      </div>
-      
+    <div class="fm-list-tags">
+      {{ item.tags ? item.tags : ' - ' }}
+    </div>
+
       <!-- Dimensione -->
       <div class="fm-list-size">{{ formatSize(item.size) }}</div>
       
