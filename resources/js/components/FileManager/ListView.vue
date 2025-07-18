@@ -148,8 +148,11 @@ const emit  = defineEmits([
   'cancelEditing',
   'downloadItem',
   'startEditing',
-  'deleteItem'
+  'deleteItem',
+  'openAssignTypeModal',
+  'assignType'
 ])
+
 
 const inlineRenameInput = ref(null)
 watch(() => props.editingItem, newItem => {
