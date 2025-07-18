@@ -88,12 +88,14 @@
         <input type="file" @change="handleFileUpload" ref="fileInput" class="hidden" multiple>
 
         <!-- Context Menu -->
-        <ContextMenu v-if="contextMenu.show" :menu="contextMenu" @rename="openRenameModal" @download="downloadItem" @delete="openDeleteModal" />
+        <ContextMenu v-if="contextMenu.show" :menu="contextMenu" @rename="openRenameModal" @download="downloadItem" @delete="openDeleteModal" @assignType="openAssignTypeModal"  />
 
         <!-- Modals -->
         <CreateFolderModal :show="showCreateFolderModal" v-model="newFolderName" @close="showCreateFolderModal = false" @create="createFolder" />
         <RenameModal :show="showRenameModal" v-model="newItemName" @close="showRenameModal = false" @rename="renameItem" />
         <DeleteModal :show="showDeleteModal" :item-name="contextMenu.item?.name" @close="showDeleteModal = false" @delete="deleteItem" />
+        <AssignTypeModal :show="showAssignTypeModal" v-model="selectedType" @close="showAssignTypeModal = false" @assign="assignType" />
+
     </div>
 </template>
 
@@ -118,6 +120,7 @@ import ContextMenu from './FileManager/ContextMenu.vue';
 import CreateFolderModal from './FileManager/Modals/CreateFolderModal.vue';
 import RenameModal from './FileManager/Modals/RenameModal.vue';
 import DeleteModal from './FileManager/Modals/DeleteModal.vue';
+import AssignTypeModal from './FileManager/Modals/AssignTypeModal.vue';
 
 import { formatSize, formatDate } from '../utils/formatters';
 import { isImage, isPdf, isWord, isExcel, isArchive, onImageError } from '../utils/filetypes';
@@ -347,6 +350,25 @@ const downloadItem = (itemToDownload) => {
     closeContextMenu();
 };
 
+const assignType = async (type) => {
+    const item = contextMenu.value.item;
+    if (!item) return;
+
+    // Call backend to assign type (update file or folder)
+    try {
+        await Nova.request().post('/api/rfm/assign-type', {
+            path: item.path,
+            type: type,
+            resourceName: props.resourceName,
+            resourceId: props.resourceId,
+        });
+        Nova.success('Tipo assegnato con successo!');
+        await fetchFiles();
+    } catch (error) {
+        Nova.error('Errore durante l\'assegnazione del tipo.');
+    }
+};
+
 
 // --- Upload Logic ---
 
@@ -396,6 +418,10 @@ const closeContextMenu = () => {
     if (contextMenu.value.show) {
         contextMenu.value.show = false;
     }
+};
+const openAssignTypeModal = (item) => {
+    contextMenu.value.item = item;
+    showAssignTypeModal.value = true;
 };
 
 const openRenameModal = (itemToRename) => {

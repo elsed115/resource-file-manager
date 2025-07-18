@@ -520,4 +520,58 @@ public function rename(NovaRequest $request)
 
         return $breadcrumbs;
     }
+
+    public function assignType(NovaRequest $request)
+{
+    $request->validate([
+        'path' => 'required|string',
+        'type' => 'required|string',
+    ]);
+
+    try {
+        $model = $this->getResourceModel($request);
+        $diskName = $model->resourceFileManagerDisk();
+        $disk = Storage::disk($diskName);
+
+        // Ottieni il file o la cartella
+        $path = $request->input('path');
+        if (!$disk->exists($path)) {
+            return response()->json(['error' => 'File not found'], 404);
+        }
+
+        // Aggiungi il tag 'type'
+        $tags = [
+            'Key' => 'type',
+            'Value' => $request->input('type'),
+        ];
+
+        // Utilizzare il client S3 per aggiornare i tag
+        $client = new S3Client([
+            'version' => 'latest',
+            'region' => config("filesystems.disks.$diskName.region"),
+            'endpoint' => config("filesystems.disks.$diskName.endpoint"),
+            'credentials' => [
+                'key' => config("filesystems.disks.$diskName.key"),
+                'secret' => config("filesystems.disks.$diskName.secret"),
+            ],
+        ]);
+
+        $bucket = config("filesystems.disks.$diskName.bucket");
+
+        // Aggiungi i tag
+        $client->putObjectTagging([
+            'Bucket' => $bucket,
+            'Key' => $path,
+            'Tagging' => [
+                'TagSet' => [$tags],
+            ],
+        ]);
+
+        return response()->json(['message' => 'Tipo assegnato con successo!']);
+    } catch (\Exception $e) {
+        Log::error("[FileManager] Error assigning type: " . $e->getMessage());
+        return response()->json(['error' => 'An unexpected error occurred.'], 500);
+    }
+}
+
 }

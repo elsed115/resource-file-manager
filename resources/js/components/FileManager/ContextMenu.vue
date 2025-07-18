@@ -4,13 +4,15 @@
             <button @click="$emit('rename')" class="fm-context-item">Rinomina</button>
             <button @click="$emit('download', menu.item)" class="fm-context-item" v-if="menu.item.type === 'file'">Download</button>
             <button @click="$emit('delete')" class="fm-context-item fm-context-item-danger">Elimina</button>
+            <!-- Nuovo bottone per assegnare tipo -->
+            <button @click="$emit('assignType', menu.item)" class="fm-context-item">Assegna Tipo</button>
         </div>
     </transition>
 </template>
 
 <script setup>
 defineProps(['menu']);
-defineEmits(['rename', 'download', 'delete']);
+defineEmits(['rename', 'download', 'delete', 'assignType']);
 </script>
 
 <style scoped>
