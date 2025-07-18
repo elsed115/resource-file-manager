@@ -148,7 +148,8 @@ const newFolderName = ref('');
 const showRenameModal = ref(false);
 const newItemName = ref('');
 const showDeleteModal = ref(false);
-
+const showAssignTypeModal = ref(false);
+const selectedType = ref('offerta'); // Default type
 // Context Menu State
 const contextMenu = ref({ show: false, x: 0, y: 0, item: null });
 
