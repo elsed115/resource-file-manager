@@ -95,8 +95,13 @@
         <CreateFolderModal :show="showCreateFolderModal" v-model="newFolderName" @close="showCreateFolderModal = false" @create="createFolder" />
         <RenameModal :show="showRenameModal" v-model="newItemName" @close="showRenameModal = false" @rename="renameItem" />
         <DeleteModal :show="showDeleteModal" :item-name="contextMenu.item?.name" @close="showDeleteModal = false" @delete="deleteItem" />
-        <AssignTypeModal :show="showAssignTypeModal" v-model="selectedType" @close="showAssignTypeModal = false" @assign="assignType" />
-
+        <AssignTypeModal 
+                    :show="showAssignTypeModal" 
+                    :type-options="typeOptions" 
+                    v-model="selectedType" 
+                    @close="showAssignTypeModal = false" 
+                    @assign="assignType" 
+                />
     </div>
 </template>
 
@@ -128,7 +133,16 @@ import { formatSize, formatDate } from '../utils/formatters';
 import { isImage, isPdf, isWord, isExcel, isArchive, onImageError } from '../utils/filetypes';
 
 // Props
-const props = defineProps(['resourceName', 'resourceId', 'fields', 'resource']);
+const props = defineProps({
+    resourceName: String,
+    resourceId: String,
+    fields: Array,
+    resource: Object,
+    typeOptions: Array // Prop per passare le opzioni dei tipi
+});
+
+const typeOptions = ref(props.typeOptions); // Imposta le opzioni dei tipi
+
 console.log(props);
 const fileManagerField = props.resource.fields?.find(f => f.component === 'resource-file-manager');
 const titolo = fileManagerField?.label || 'Gestione File';

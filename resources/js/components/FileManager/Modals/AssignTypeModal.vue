@@ -18,10 +18,8 @@
                             class="mt-1 block w-full form-control form-input form-input-bordered"
                             required
                         >
-                            <option value="offerta">Offerta</option>
-                            <option value="offerta_editabile">Offerta Editabile</option>
-                            <option value="test">Test</option>
-                            <!-- Aggiungi altri tipi se necessario -->
+                            <!-- Opzioni dinamiche -->
+                            <option v-for="(label, key) in typeOptions" :key="key" :value="key">{{ label }}</option>
                         </select>
                     </div>
                 </div>
@@ -41,12 +39,17 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 
-const props = defineProps(['show', 'modelValue']);
-const emit = defineEmits(['close', 'assign', 'update:modelValue']);
+// Prop per ricevere le opzioni dinamiche dei tipi
+const props = defineProps({
+    show: Boolean,
+    typeOptions: Object // Riceve un oggetto con le opzioni dei tipi
+});
 
-const selectedType = ref('offerta');
+const emit = defineEmits(['close', 'assign']);
+
+const selectedType = ref(Object.keys(props.typeOptions)[0] || ''); // Imposta un tipo predefinito (primo nella lista)
 
 const handleAssign = () => {
     emit('assign', selectedType.value);
@@ -55,8 +58,8 @@ const handleAssign = () => {
 </script>
 
 <style scoped>
-/* Styles for modal */
+/* Modal styles */
 .modal {
-  z-index: 50;
+    z-index: 50;
 }
 </style>
