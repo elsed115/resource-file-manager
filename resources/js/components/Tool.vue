@@ -55,6 +55,7 @@
                     @download-item="downloadItem"
                     @start-editing="startEditing"
                     @delete-item="openDeleteModal"
+                    @openAssignTypeModal="openAssignTypeModal" 
                 />
             </div>
             <div
@@ -98,6 +99,7 @@
 
     </div>
 </template>
+
 
 <script setup>
 import { ref, computed, watch, onMounted, nextTick } from 'vue';

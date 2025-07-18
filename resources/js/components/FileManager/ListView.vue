@@ -1,134 +1,134 @@
 <template>
-  <div class="fm-list">
-    <!-- Header della lista -->
-    <div class="fm-list-header bg-gray-50 dark:bg-gray-800">
-      <div class="fm-list-name">Nome</div>
-      <div class="fm-list-tags">Tipo</div>
-      <div class="fm-list-size">Dimensione</div>
-      <div class="fm-list-modified">Ultima Modifica</div>
-      <div class="fm-list-actions">Azioni</div>
-    </div>
-    
-    <!-- Items della lista -->
-    <div
-      v-for="item in items"
-      :key="item.path"
-      class="fm-list-item"
-      @dblclick="$emit('itemDoubleClick', item)"
-    >
-      <div class="fm-list-name">
-        <!-- Icona immagine -->
-        <img
-          v-if="isImage(item)"
-          :src="item.url"
-          class="fm-list-thumb"
-          @error="onImageError"
-          loading="lazy"
-        />
-        
-        <!-- Icona cartella -->
-        <svg
-          v-else-if="item.type === 'folder'"
-          class="fm-list-icon text-primary-500"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="0.75"
-            d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
-          />
-        </svg>
-
-        <!-- Icona mascherata per altri tipi -->
-        <span
-          v-else
-          class="fm-list-icon icon-mask"
-          :class="colorClass(item)"
-          :style="maskStyle(item)"
-        ></span>
-
-        <!-- Rinomina inline -->
-        <div v-if="editingItem && editingItem.path === item.path">
-          <input
-            type="text"
-            :value="newItemName"
-            @input="$emit('update:newItemName', $event.target.value)"
-            @keyup.enter="$emit('renameItem')"
-            @blur="$emit('cancelEditing')"
-            @keyup.esc="$emit('cancelEditing')"
-            class="fm-inline-rename-input"
-            ref="inlineRenameInput"
-          />
+    <div class="fm-list">
+        <!-- Header della lista -->
+        <div class="fm-list-header bg-gray-50 dark:bg-gray-800">
+            <div class="fm-list-name">Nome</div>
+            <div class="fm-list-tags">Tipo</div>
+            <div class="fm-list-size">Dimensione</div>
+            <div class="fm-list-modified">Ultima Modifica</div>
+            <div class="fm-list-actions">Azioni</div>
         </div>
-        <span v-else>{{ item.name }}</span>
-      </div>
-      
-      <!-- Tipo (Tag) -->
-      <div class="fm-list-tags">
-        {{ item.tags ? item.tags : ' - ' }}
-      </div>
 
-      <!-- Dimensione -->
-      <div class="fm-list-size">{{ formatSize(item.size) }}</div>
-      
-      <!-- Ultima modifica -->
-      <div class="fm-list-modified">{{ formatDate(item.last_modified) }}</div>
-      
-      <!-- Azioni -->
-      <div class="fm-list-actions">
-        <button
-          @click="$emit('downloadItem', item)"
-          v-if="item.type === 'file'"
-          class="fm-action-btn"
-          title="Download"
+        <!-- Items della lista -->
+        <div
+            v-for="item in items"
+            :key="item.path"
+            class="fm-list-item"
+            @dblclick="$emit('itemDoubleClick', item)"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
-            <path
-              d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.129V2.75z"
-            />
-            <path
-              d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z"
-            />
-          </svg>
-        </button>
-        
-        <button @click="$emit('startEditing', item)" class="fm-action-btn" title="Rinomina">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
-            <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
-            <path
-              fill-rule="evenodd"
-              d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
-              clip-rule="evenodd"
-            />
-          </svg>
-        </button>
+            <div class="fm-list-name">
+                <!-- Icona immagine -->
+                <img
+                    v-if="isImage(item)"
+                    :src="item.url"
+                    class="fm-list-thumb"
+                    @error="onImageError"
+                    loading="lazy"
+                />
+                
+                <!-- Icona cartella -->
+                <svg
+                    v-else-if="item.type === 'folder'"
+                    class="fm-list-icon text-primary-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="0.75"
+                        d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+                    />
+                </svg>
 
-        <!-- Pulsante Assegna Tipo -->
-        <button 
-          @click="openAssignTypeModal(item)" 
-          class="fm-action-btn" 
-          title="Assegna Tipo"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
-            <path fill-rule="evenodd" d="M9 3a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V4a1 1 0 011-1h4zM3 7a1 1 0 011-1h2V4a3 3 0 016 0v2h2a1 1 0 011 1v2a1 1 0 01-1 1h-2v2a3 3 0 01-6 0V9H4a1 1 0 01-1-1V7z" clip-rule="evenodd" />
-          </svg>
-        </button>
+                <!-- Icona mascherata per altri tipi -->
+                <span
+                    v-else
+                    class="fm-list-icon icon-mask"
+                    :class="colorClass(item)"
+                    :style="maskStyle(item)"
+                ></span>
 
-        <button @click="$emit('deleteItem', item)" class="fm-action-btn fm-action-btn-danger" title="Elimina">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
-            <path
-              fill-rule="evenodd"
-              d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.58.22-2.365.468a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193v-.443A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z"
-              clip-rule="evenodd"
-            />
-          </svg>
-        </button>
-      </div>
+                <!-- Rinomina inline -->
+                <div v-if="editingItem && editingItem.path === item.path">
+                    <input
+                        type="text"
+                        :value="newItemName"
+                        @input="$emit('update:newItemName', $event.target.value)"
+                        @keyup.enter="$emit('renameItem')"
+                        @blur="$emit('cancelEditing')"
+                        @keyup.esc="$emit('cancelEditing')"
+                        class="fm-inline-rename-input"
+                        ref="inlineRenameInput"
+                    />
+                </div>
+                <span v-else>{{ item.name }}</span>
+            </div>
+            
+            <!-- Tipo (Tag) -->
+            <div class="fm-list-tags">
+                {{ item.tags ? item.tags : ' - ' }}
+            </div>
+
+            <!-- Dimensione -->
+            <div class="fm-list-size">{{ formatSize(item.size) }}</div>
+            
+            <!-- Ultima modifica -->
+            <div class="fm-list-modified">{{ formatDate(item.last_modified) }}</div>
+            
+            <!-- Azioni -->
+            <div class="fm-list-actions">
+                <button
+                    @click="$emit('downloadItem', item)"
+                    v-if="item.type === 'file'"
+                    class="fm-action-btn"
+                    title="Download"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                        <path
+                            d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.129V2.75z"
+                        />
+                        <path
+                            d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z"
+                        />
+                    </svg>
+                </button>
+                
+                <button @click="$emit('startEditing', item)" class="fm-action-btn" title="Rinomina">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                        <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
+                        <path
+                            fill-rule="evenodd"
+                            d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
+                            clip-rule="evenodd"
+                        />
+                    </svg>
+                </button>
+
+                <!-- Pulsante Assegna Tipo -->
+                <button 
+                    @click="$emit('openAssignTypeModal', item)" 
+                    class="fm-action-btn" 
+                    title="Assegna Tipo"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                        <path fill-rule="evenodd" d="M9 3a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V4a1 1 0 011-1h4zM3 7a1 1 0 011-1h2V4a3 3 0 016 0v2h2a1 1 0 011 1v2a1 1 0 01-1 1h-2v2a3 3 0 01-6 0V9H4a1 1 0 01-1-1V7z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+
+                <button @click="$emit('deleteItem', item)" class="fm-action-btn fm-action-btn-danger" title="Elimina">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                        <path
+                            fill-rule="evenodd"
+                            d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.58.22-2.365.468a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193v-.443A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z"
+                            clip-rule="evenodd"
+                        />
+                    </svg>
+                </button>
+            </div>
+        </div>
     </div>
-  </div>
 </template>
 
 
