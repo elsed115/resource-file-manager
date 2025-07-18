@@ -96,15 +96,16 @@
                 </button>
 
                 <!-- Pulsante Assegna Tipo -->
-                <button 
-                    @click="$emit('openAssignTypeModal', item)" 
-                    class="fm-action-btn" 
-                    title="Assegna Tipo"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
-                        <path fill-rule="evenodd" d="M9 3a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V4a1 1 0 011-1h4zM3 7a1 1 0 011-1h2V4a3 3 0 016 0v2h2a1 1 0 011 1v2a1 1 0 01-1 1h-2v2a3 3 0 01-6 0V9H4a1 1 0 01-1-1V7z" clip-rule="evenodd" />
-                    </svg>
-                </button>
+              <button 
+                  @click="$emit('openAssignTypeModal', item)" 
+                  class="fm-action-btn" 
+                  title="Assegna Tipo"
+              >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z" />
+                  </svg>
+              </button>
 
                 <button @click="$emit('startEditing', item)" class="fm-action-btn" title="Rinomina">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
