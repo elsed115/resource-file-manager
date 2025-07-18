@@ -1,5 +1,6 @@
 <template>
   <div class="fm-list">
+    <!-- Header della lista -->
     <div class="fm-list-header bg-gray-50 dark:bg-gray-800">
       <div class="fm-list-name">Nome</div>
       <div class="fm-list-tags">Tipo</div>
@@ -7,6 +8,8 @@
       <div class="fm-list-modified">Ultima Modifica</div>
       <div class="fm-list-actions">Azioni</div>
     </div>
+    
+    <!-- Items della lista -->
     <div
       v-for="item in items"
       :key="item.path"
@@ -14,7 +17,7 @@
       @dblclick="$emit('itemDoubleClick', item)"
     >
       <div class="fm-list-name">
-        <!-- thumb per immagini -->
+        <!-- Icona immagine -->
         <img
           v-if="isImage(item)"
           :src="item.url"
@@ -22,8 +25,8 @@
           @error="onImageError"
           loading="lazy"
         />
-
-        <!-- icona cartella -->
+        
+        <!-- Icona cartella -->
         <svg
           v-else-if="item.type === 'folder'"
           class="fm-list-icon text-primary-500"
@@ -39,7 +42,7 @@
           />
         </svg>
 
-        <!-- icona “maskata” per tutti gli altri tipi -->
+        <!-- Icona mascherata per altri tipi -->
         <span
           v-else
           class="fm-list-icon icon-mask"
@@ -47,7 +50,7 @@
           :style="maskStyle(item)"
         ></span>
 
-        <!-- inline rename -->
+        <!-- Rinomina inline -->
         <div v-if="editingItem && editingItem.path === item.path">
           <input
             type="text"
@@ -62,11 +65,19 @@
         </div>
         <span v-else>{{ item.name }}</span>
       </div>
-<div class="fm-list-type">
-  {{ item.tags ? item.tags : '' }}
-</div>
+      
+      <!-- Tipo (Tag) -->
+      <div class="fm-list-tags">
+        {{ item.tags && item.tags.type ? item.tags.type : 'N/A' }}
+      </div>
+      
+      <!-- Dimensione -->
       <div class="fm-list-size">{{ formatSize(item.size) }}</div>
+      
+      <!-- Ultima modifica -->
       <div class="fm-list-modified">{{ formatDate(item.last_modified) }}</div>
+      
+      <!-- Azioni -->
       <div class="fm-list-actions">
         <button
           @click="$emit('downloadItem', item)"
@@ -74,7 +85,6 @@
           class="fm-action-btn"
           title="Download"
         >
-          <!-- SVG download invariato -->
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
             <path
               d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.129V2.75z"
@@ -84,8 +94,8 @@
             />
           </svg>
         </button>
+        
         <button @click="$emit('startEditing', item)" class="fm-action-btn" title="Rinomina">
-          <!-- SVG rename invariato -->
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
             <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
             <path
@@ -95,8 +105,8 @@
             />
           </svg>
         </button>
+
         <button @click="$emit('deleteItem', item)" class="fm-action-btn fm-action-btn-danger" title="Elimina">
-          <!-- SVG delete invariato -->
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
             <path
               fill-rule="evenodd"
@@ -110,6 +120,9 @@
   </div>
 </template>
 
+### Script:
+
+```javascript
 <script setup>
 import { ref, watch, nextTick } from 'vue'
 import { isImage, getFileIcon, onImageError } from '../../utils/filetypes'
@@ -160,39 +173,37 @@ function maskStyle(item) {
   }
 }
 </script>
-
 <style scoped>
 .fm-list {
   display: flex;
   flex-direction: column;
-  width: 100%; /* Assicurati che la lista prenda tutta la larghezza disponibile */
+  width: 100%;
 }
 
 .fm-list-header {
   display: grid;
-  grid-template-columns: 1fr 2fr 1fr 1fr 1fr; /* Imposta larghezze relative per ciascuna colonna */
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
   gap: 1rem;
   padding: 0.5rem 1.25rem;
   border-bottom: 1px solid var(--fm-border-color);
   font-weight: 600;
   font-size: 0.875rem;
   color: var(--fm-text-color-dim);
-  text-align: left; /* Allinea il testo a sinistra */
+  text-align: left;
 }
 
 .fm-list-item {
   display: grid;
-  grid-template-columns: 1fr 2fr 1fr 1fr 1fr; /* Stesse larghezze delle colonne dell'header */
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
   gap: 1rem;
   align-items: center;
   padding: 0.5rem 1.25rem;
   border-bottom: 1px solid var(--fm-border-color);
   transition: background-color 0.2s ease;
-  width: 100%; /* Assicurati che ogni item prenda tutta la larghezza disponibile */
 }
 
 .fm-list-item:hover {
-  background-color: var(--fm-bg-alt-color); /* Colore di hover */
+  background-color: var(--fm-bg-alt-color);
 }
 
 .fm-list-name,
@@ -204,8 +215,8 @@ function maskStyle(item) {
   align-items: center;
   justify-content: flex-start;
   overflow: hidden;
-  white-space: nowrap; /* Impedisce che il testo esca dal layout */
-  text-overflow: ellipsis; /* Aggiunge "..." se il testo è troppo lungo */
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .fm-list-name {
@@ -224,16 +235,10 @@ function maskStyle(item) {
   text-align: center;
 }
 
-.fm-list-type {
-  font-size: 0.875rem;
-  color: var(--fm-text-color-dim);
-  text-align: center;
-}
-
 .fm-list-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 0.75rem; /* Aggiunge spazio tra i bottoni */
+  gap: 0.75rem;
 }
 
 .fm-action-btn {
@@ -245,11 +250,11 @@ function maskStyle(item) {
 
 .fm-action-btn:hover {
   background-color: var(--fm-bg-color);
-  color: var(--fm-primary-color); /* Cambia il colore del testo al passaggio del mouse */
+  color: var(--fm-primary-color);
 }
 
 .fm-action-btn-danger:hover {
-  color: var(--fm-danger-color); /* Colore per i bottoni di eliminazione */
+  color: var(--fm-danger-color);
 }
 
 .fm-inline-rename-input {
@@ -274,7 +279,6 @@ function maskStyle(item) {
   flex-shrink: 0;
 }
 
-/* mask icon */
 .icon-mask {
   background-color: currentColor;
   mask-repeat: no-repeat;
@@ -284,43 +288,4 @@ function maskStyle(item) {
   -webkit-mask-position: center;
   -webkit-mask-size: contain;
 }
-
-.fm-list-header .fm-list-name,
-.fm-list-header .fm-list-tags,
-.fm-list-header .fm-list-size,
-.fm-list-header .fm-list-modified,
-.fm-list-header .fm-list-actions {
-  display: flex;
-  justify-content: flex-start;
-  padding: 0 0.75rem;
-}
-
-.fm-list-name {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  font-weight: 500;
-  color: var(--fm-text-color);
-}
-
-.fm-list-type {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-}
-
-.fm-list-actions {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.fm-list-size,
-.fm-list-modified {
-  font-size: 0.875rem;
-  color: var(--fm-text-color-dim);
-}
-
 </style>
