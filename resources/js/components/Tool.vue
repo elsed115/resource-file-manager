@@ -142,7 +142,7 @@ const perPage = ref(15);
 const perPageOptions = [5, 15, 30, 50, 100];
 const isDragging = ref(false);
 const searchQuery = ref('');
-const viewMode = ref('grid'); // 'grid' or 'list'
+const viewMode = ref('list'); // 'grid' or 'list'
 
 // Modals State
 const showCreateFolderModal = ref(false);
