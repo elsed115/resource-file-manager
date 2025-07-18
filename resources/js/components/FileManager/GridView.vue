@@ -179,7 +179,6 @@ defineEmits(['itemDoubleClick', 'itemContextMenu'])
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin-top: 0.5rem;
 }
 
 .fm-label {
@@ -218,18 +217,16 @@ defineEmits(['itemDoubleClick', 'itemContextMenu'])
 .fm-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
   justify-content: center;
-  margin-top: 0.5rem;
 }
 
 .fm-tag {
-  padding: 0.25rem 0.5rem;
   font-size: 0.75rem;
   border-radius: 9999px; /* rounded pill */
   font-weight: 500;
   text-transform: capitalize;
   display: inline-block;
+  margin-bottom: 25px;
 }
 
 .fm-tag.bg-gray-200 {
