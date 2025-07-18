@@ -162,39 +162,101 @@ function maskStyle(item) {
 </script>
 
 <style scoped>
-.fm-list { display: flex; flex-direction: column; }
+.fm-list {
+  display: flex;
+  flex-direction: column;
+  width: 100%; /* Assicurati che la lista prenda tutta la larghezza disponibile */
+}
 
 .fm-list-header {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 120px 180px 120px;
+  grid-template-columns: 1fr 2fr 1fr 1fr 1fr; /* Imposta larghezze relative per ciascuna colonna */
   gap: 1rem;
   padding: 0.5rem 1.25rem;
   border-bottom: 1px solid var(--fm-border-color);
   font-weight: 600;
   font-size: 0.875rem;
   color: var(--fm-text-color-dim);
+  text-align: left; /* Allinea il testo a sinistra */
 }
 
 .fm-list-item {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 120px 180px 120px;
+  grid-template-columns: 1fr 2fr 1fr 1fr 1fr; /* Stesse larghezze delle colonne dell'header */
   gap: 1rem;
   align-items: center;
   padding: 0.5rem 1.25rem;
   border-bottom: 1px solid var(--fm-border-color);
   transition: background-color 0.2s ease;
+  width: 100%; /* Assicurati che ogni item prenda tutta la larghezza disponibile */
 }
-.fm-list-item:hover { background-color: var(--fm-bg-alt-color); }
 
-.fm-list-name {
+.fm-list-item:hover {
+  background-color: var(--fm-bg-alt-color); /* Colore di hover */
+}
+
+.fm-list-name,
+.fm-list-tags,
+.fm-list-size,
+.fm-list-modified,
+.fm-list-actions {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  justify-content: flex-start;
+  overflow: hidden;
+  white-space: nowrap; /* Impedisce che il testo esca dal layout */
+  text-overflow: ellipsis; /* Aggiunge "..." se il testo è troppo lungo */
+}
+
+.fm-list-name {
   font-weight: 500;
   color: var(--fm-text-color);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+}
+
+.fm-list-tags {
+  color: var(--fm-text-color-dim);
+}
+
+.fm-list-size,
+.fm-list-modified {
+  font-size: 0.875rem;
+  color: var(--fm-text-color-dim);
+  text-align: center;
+}
+
+.fm-list-type {
+  font-size: 0.875rem;
+  color: var(--fm-text-color-dim);
+  text-align: center;
+}
+
+.fm-list-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem; /* Aggiunge spazio tra i bottoni */
+}
+
+.fm-action-btn {
+  padding: 0.5rem;
+  border-radius: 50%;
+  color: var(--fm-text-color-dim);
+  transition: all 0.2s ease;
+}
+
+.fm-action-btn:hover {
+  background-color: var(--fm-bg-color);
+  color: var(--fm-primary-color); /* Cambia il colore del testo al passaggio del mouse */
+}
+
+.fm-action-btn-danger:hover {
+  color: var(--fm-danger-color); /* Colore per i bottoni di eliminazione */
+}
+
+.fm-inline-rename-input {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--fm-border-color-focus);
+  border-radius: var(--fm-border-radius-sm);
+  outline: none;
 }
 
 .fm-list-thumb {
@@ -223,17 +285,29 @@ function maskStyle(item) {
   -webkit-mask-size: contain;
 }
 
-.fm-list-size,
-.fm-list-modified {
-  font-size: 0.875rem;
-  color: var(--fm-text-color-dim);
+.fm-list-header .fm-list-name,
+.fm-list-header .fm-list-tags,
+.fm-list-header .fm-list-size,
+.fm-list-header .fm-list-modified,
+.fm-list-header .fm-list-actions {
+  display: flex;
+  justify-content: flex-start;
+  padding: 0 0.75rem;
 }
+
+.fm-list-name {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-weight: 500;
+  color: var(--fm-text-color);
+}
+
 .fm-list-type {
-  font-size: 0.875rem;
-  color: var(--fm-text-color-dim);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .fm-list-actions {
@@ -243,19 +317,10 @@ function maskStyle(item) {
   gap: 0.5rem;
 }
 
-.fm-action-btn {
-  padding: 0.5rem;
-  border-radius: 50%;
+.fm-list-size,
+.fm-list-modified {
+  font-size: 0.875rem;
   color: var(--fm-text-color-dim);
-  transition: all 0.2s ease;
 }
-.fm-action-btn:hover { background-color: var(--fm-bg-color); color: var(--fm-primary-color); }
-.fm-action-btn-danger:hover { color: var(--fm-danger-color); }
 
-.fm-inline-rename-input {
-  padding: 0.25rem 0.5rem;
-  border: 1px solid var(--fm-border-color-focus);
-  border-radius: var(--fm-border-radius-sm);
-  outline: none;
-}
 </style>
