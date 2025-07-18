@@ -44,20 +44,7 @@
           ></span>
         </div>
 
-        <!-- File Name -->
-        <span class="fm-label">{{ item.name }}</span>
-
-        <!-- Tags Section -->
-        <div v-if="item.tags && item.tags.length" class="fm-tags">
-          <span
-            v-for="(tag, index) in item.tags"
-            :key="index"
-            class="fm-tag"
-            :class="tagClass(tag)"
-          >
-            {{ tag }}
-          </span>
-        </div>
+        <span class="fm-label">{{ item.name }}<br> {{ item.tags ? item.tags : '' }}</span>
       </div>
     </div>
   </div>
@@ -95,17 +82,6 @@ function maskStyle(item) {
   }
 }
 
-// Tag class based on the type
-function tagClass(tag) {
-  switch (tag.toLowerCase()) {
-    case 'urgent': return 'bg-red-500 text-white'
-    case 'important': return 'bg-blue-500 text-white'
-    case 'completed': return 'bg-green-500 text-white'
-    case 'pending': return 'bg-yellow-500 text-white'
-    default: return 'bg-gray-200 text-gray-700'
-  }
-}
-
 defineProps(['items'])
 defineEmits(['itemDoubleClick', 'itemContextMenu'])
 </script>
@@ -116,7 +92,6 @@ defineEmits(['itemDoubleClick', 'itemContextMenu'])
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 1.5rem;
 }
-
 .fm-cell {
   position: relative;
   background: var(--fm-bg-alt-color);
@@ -128,7 +103,6 @@ defineEmits(['itemDoubleClick', 'itemContextMenu'])
   cursor: pointer;
   box-shadow: var(--fm-shadow-sm);
 }
-
 .fm-cell:hover,
 .fm-cell:focus-visible {
   border-color: var(--fm-border-color-focus);
@@ -136,11 +110,9 @@ defineEmits(['itemDoubleClick', 'itemContextMenu'])
   box-shadow: var(--fm-shadow-lg);
   outline: none;
 }
-
 .dark .fm-cell {
   background: color-mix(in srgb, var(--fm-bg-alt-color) 50%, transparent);
 }
-
 .fm-content {
   position: absolute;
   inset: 0;
@@ -152,7 +124,6 @@ defineEmits(['itemDoubleClick', 'itemContextMenu'])
   text-align: center;
   overflow: hidden;
 }
-
 .fm-icon-wrapper {
   flex-grow: 1;
   width: 55%;
@@ -161,20 +132,17 @@ defineEmits(['itemDoubleClick', 'itemContextMenu'])
   justify-content: center;
   margin-bottom: 0.75rem;
 }
-
 .fm-icon {
   width: 100%;
   height: 100%;
   opacity: 0.9;
 }
-
 .fm-thumb {
   max-width: 100%;
   max-height: 100%;
   object-fit: cover;
   border-radius: var(--fm-border-radius-sm);
 }
-
 .fm-label {
   font-size: 0.875rem;
   font-weight: 500;
@@ -190,7 +158,6 @@ defineEmits(['itemDoubleClick', 'itemContextMenu'])
   left: 0;
   border-top: 1px solid var(--fm-border-color);
 }
-
 .dark .fm-label {
   background: color-mix(in srgb, var(--fm-bg-alt-color) 80%, transparent);
 }
@@ -205,48 +172,5 @@ defineEmits(['itemDoubleClick', 'itemContextMenu'])
   -webkit-mask-repeat: no-repeat;
   -webkit-mask-position: center;
   -webkit-mask-size: contain;
-}
-
-/* ------------ TAG STYLE ------------ */
-.fm-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  justify-content: center;
-  margin-top: 0.5rem;
-}
-
-.fm-tag {
-  padding: 0.25rem 0.5rem;
-  font-size: 0.75rem;
-  border-radius: 9999px; /* rounded pill */
-  font-weight: 500;
-  text-transform: capitalize;
-  display: inline-block;
-}
-
-.fm-tag.bg-gray-200 {
-  background-color: #e5e7eb;
-  color: #4b5563;
-}
-
-.fm-tag.bg-red-500 {
-  background-color: #ef4444;
-  color: white;
-}
-
-.fm-tag.bg-blue-500 {
-  background-color: #3b82f6;
-  color: white;
-}
-
-.fm-tag.bg-green-500 {
-  background-color: #10b981;
-  color: white;
-}
-
-.fm-tag.bg-yellow-500 {
-  background-color: #f59e0b;
-  color: white;
 }
 </style>
