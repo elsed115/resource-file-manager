@@ -85,6 +85,7 @@ class FileController extends Controller
                         // Crea l'URL temporaneo
                         $url = Storage::disk($diskName)->temporaryUrl($file, now()->addMinutes(5));
                         Log::info('[FileManager] Generated temporary URL for ' . $file . ': ' . $url);
+
                         return [
                             'name' => basename($file),
                             'path' => $file,
@@ -92,7 +93,7 @@ class FileController extends Controller
                             'size' => Storage::disk($diskName)->size($file),
                             'last_modified' => Storage::disk($diskName)->lastModified($file),
                             'url' => $url,
-                            'tags' => $tags,  // Aggiungi i tag
+                            'tags' => $tags ?: '-',  // Imposta '-' se non ci sono tag
                         ];
                     } catch (UnableToRetrieveMetadata $e) {
                         Log::warning("[FileManager] Could not retrieve metadata for file: {$file}. Error: " . $e->getMessage());
@@ -102,7 +103,7 @@ class FileController extends Controller
                         return null;
                     }
                 })->filter();
-            Log::info($files);
+
             // Recupera le cartelle
             $directories = collect(Storage::disk($diskName)->directories($fullPath))
                 ->map(function ($dir) {
@@ -110,9 +111,10 @@ class FileController extends Controller
                         'name' => basename($dir),
                         'path' => $dir,
                         'type' => 'folder',
-                        'tags' => []  // Nessun tag per le cartelle
+                        'tags' => '-',  // Imposta '-' per le cartelle
                     ];
                 });
+
 
             // Combina file e cartelle, ordina e applica la paginazione
             $allItems = $files->merge($directories)->sortBy('name')->values();
