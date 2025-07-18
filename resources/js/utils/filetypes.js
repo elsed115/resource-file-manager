@@ -64,7 +64,7 @@ export function getFileIcon(item) {
   }
   const ext = item.name.split('.').pop().toLowerCase();
   const iconName = iconMap[ext] || 'default-file';  // Usa il valore di default per estensioni sconosciute
-  return `/icons/${iconName}.svg`;  // Restituisce il percorso relativo alle icone nella cartella public
+  return `/svg/${iconName}.svg`;  // Restituisce il percorso relativo alle icone nella cartella public
 }
 
 export function onImageError(event) {
