@@ -94,17 +94,6 @@
                         />
                     </svg>
                 </button>
-                
-                <button @click="$emit('startEditing', item)" class="fm-action-btn" title="Rinomina">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
-                        <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
-                        <path
-                            fill-rule="evenodd"
-                            d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
-                            clip-rule="evenodd"
-                        />
-                    </svg>
-                </button>
 
                 <!-- Pulsante Assegna Tipo -->
                 <button 
@@ -114,6 +103,17 @@
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
                         <path fill-rule="evenodd" d="M9 3a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V4a1 1 0 011-1h4zM3 7a1 1 0 011-1h2V4a3 3 0 016 0v2h2a1 1 0 011 1v2a1 1 0 01-1 1h-2v2a3 3 0 01-6 0V9H4a1 1 0 01-1-1V7z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+
+                <button @click="$emit('startEditing', item)" class="fm-action-btn" title="Rinomina">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                        <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
+                        <path
+                            fill-rule="evenodd"
+                            d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
+                            clip-rule="evenodd"
+                        />
                     </svg>
                 </button>
 
