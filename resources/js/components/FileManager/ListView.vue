@@ -2,6 +2,7 @@
   <div class="fm-list">
     <div class="fm-list-header bg-gray-50 dark:bg-gray-800">
       <div class="fm-list-name">Nome</div>
+      <div class="fm-list-tags">Tipo</div>
       <div class="fm-list-size">Dimensione</div>
       <div class="fm-list-modified">Ultima Modifica</div>
       <div class="fm-list-actions">Azioni</div>
@@ -61,7 +62,9 @@
         </div>
         <span v-else>{{ item.name }}</span>
       </div>
-
+      <div class="fm-list-type">
+      {{ item.tags.length > 0 ? item.tags.join(', ') : 'N/A' }}
+      </div>
       <div class="fm-list-size">{{ formatSize(item.size) }}</div>
       <div class="fm-list-modified">{{ formatDate(item.last_modified) }}</div>
       <div class="fm-list-actions">
@@ -224,6 +227,13 @@ function maskStyle(item) {
 .fm-list-modified {
   font-size: 0.875rem;
   color: var(--fm-text-color-dim);
+}
+.fm-list-type {
+  font-size: 0.875rem;
+  color: var(--fm-text-color-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .fm-list-actions {
