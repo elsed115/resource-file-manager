@@ -49,14 +49,11 @@
           <span class="fm-label">{{ item.name }}</span>
 
           <!-- Tag Section -->
-          <div v-if="item.tags && item.tags.length" class="fm-tags">
+          <div v-if="item.tags" class="fm-tags">
             <span
-              v-for="(tag, index) in item.tags"
-              :key="index"
               class="fm-tag"
-              :class="tagClass(tag)"
             >
-              {{ tag }}
+                {{ item.tags ? item.tags : ' - ' }}
             </span>
           </div>
         </div>
