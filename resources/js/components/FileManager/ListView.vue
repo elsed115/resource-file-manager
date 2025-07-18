@@ -68,7 +68,7 @@
       
       <!-- Tipo (Tag) -->
       <div class="fm-list-tags">
-        {{ item.tags && item.tags.type ? item.tags.type : 'N/A' }}
+        {{ item.tags && item.tags.type ? item.tags.type : '-' }}
       </div>
       
       <!-- Dimensione -->
