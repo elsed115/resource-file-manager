@@ -3,9 +3,8 @@
         <div class="fm-context-menu" :style="{ top: menu.y + 'px', left: menu.x + 'px' }">
             <button @click="$emit('rename')" class="fm-context-item">Rinomina</button>
             <button @click="$emit('download', menu.item)" class="fm-context-item" v-if="menu.item.type === 'file'">Download</button>
+            <button @click="$emit('assignType', menu.item)" class="fm-context-item" v-if="menu.item.type === 'file'">Assegna Tipo</button>
             <button @click="$emit('delete')" class="fm-context-item fm-context-item-danger">Elimina</button>
-            <!-- Nuovo bottone per assegnare tipo -->
-            <button @click="$emit('assignType', menu.item)" class="fm-context-item">Assegna Tipo</button>
         </div>
     </transition>
 </template>

@@ -67,9 +67,9 @@
       </div>
       
       <!-- Tipo (Tag) -->
-    <div class="fm-list-tags">
-      {{ item.tags ? item.tags : ' - ' }}
-    </div>
+      <div class="fm-list-tags">
+        {{ item.tags ? item.tags : ' - ' }}
+      </div>
 
       <!-- Dimensione -->
       <div class="fm-list-size">{{ formatSize(item.size) }}</div>
@@ -106,6 +106,17 @@
           </svg>
         </button>
 
+        <!-- Pulsante Assegna Tipo -->
+        <button 
+          @click="openAssignTypeModal(item)" 
+          class="fm-action-btn" 
+          title="Assegna Tipo"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+            <path fill-rule="evenodd" d="M9 3a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V4a1 1 0 011-1h4zM3 7a1 1 0 011-1h2V4a3 3 0 016 0v2h2a1 1 0 011 1v2a1 1 0 01-1 1h-2v2a3 3 0 01-6 0V9H4a1 1 0 01-1-1V7z" clip-rule="evenodd" />
+          </svg>
+        </button>
+
         <button @click="$emit('deleteItem', item)" class="fm-action-btn fm-action-btn-danger" title="Elimina">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
             <path
@@ -119,6 +130,7 @@
     </div>
   </div>
 </template>
+
 
 ### Script:
 
