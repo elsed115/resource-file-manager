@@ -147,44 +147,50 @@ class FileController extends Controller
     /**
      * Recupera i tag associati a un file su S3/MinIO
      */
-
     private function getFileTags($diskName, $file)
     {
         try {
-            // Ottieni la configurazione del disco dal file system
+            // Ottieni la configurazione del disco
             $cfg = config("filesystems.disks.$diskName");
 
             // Crea l'istanza del client S3
             $client = new S3Client([
                 'version' => 'latest',
                 'region' => $cfg['region'],
-                'endpoint' => $cfg['endpoint'],  // Utilizza l'endpoint specificato (ad esempio, storage.inext.ai:9001)
+                'endpoint' => $cfg['endpoint'],  // Usa l'endpoint configurato
                 'credentials' => [
                     'key' => $cfg['key'],
                     'secret' => $cfg['secret'],
                 ],
-                'use_path_style_endpoint' => true,  // Assicurati che MinIO usi il path-style per l'endpoint
+                'use_path_style_endpoint' => true,
             ]);
 
-            $bucket = $cfg['bucket']; // Il bucket è configurato nel file di configurazione
+            $bucket = $cfg['bucket'];
 
-            // Recupera i tag del file
+            // Recupera i tag
             $result = $client->getObjectTagging([
                 'Bucket' => $bucket,
-                'Key'    => $file,  // Percorso del file
+                'Key'    => $file,
             ]);
 
-            // Estrai e restituisci i tag come un array associativo
-            return collect($result->get('TagSet'))
-                ->pluck('Value', 'Key')
-                ->toArray();
+            // Estrai e restituisci solo il valore del tag 'type'
+            $tags = collect($result->get('TagSet'))
+                ->filter(function($tag) {
+                    return $tag['Key'] === 'type';
+                })
+                ->pluck('Value')
+                ->first();  // Restituisce il primo valore trovato
 
+            return $tags;  // Restituisce il valore direttamente come stringa
+
+        } catch (\Aws\Exception\AwsException $e) {
+            Log::error("[FileManager] Error retrieving tags for file: {$file}. Error: " . $e->getMessage());
+            return null;  // Se c'è un errore, ritorna null
         } catch (\Exception $e) {
-            Log::warning("[FileManager] Error retrieving tags for file: {$file}. Error: " . $e->getMessage());
-            return [];  // Se non ci sono tag, restituiamo un array vuoto
+            Log::error("[FileManager] General error retrieving tags for file: {$file}. Error: " . $e->getMessage());
+            return null;
         }
     }
-
 
 
     public function generateTempLink(NovaRequest $request)

@@ -62,18 +62,9 @@
         </div>
         <span v-else>{{ item.name }}</span>
       </div>
-      <div class="fm-list-type">
-        <!-- Se i tag esistono, mostra ciascuna coppia key-value -->
-        <template v-if="item.tags && Object.keys(item.tags).length > 0">
-          <span v-for="(value, key) in item.tags" :key="key">
-            {{ key }}: {{ value }}
-          </span>
-        </template>
-        <!-- Se non ci sono tag, mostra 'N/A' -->
-        <template v-else>
-          N/A
-        </template>
-      </div>
+<div class="fm-list-type">
+  {{ item.tags ? item.tags : '' }}
+</div>
       <div class="fm-list-size">{{ formatSize(item.size) }}</div>
       <div class="fm-list-modified">{{ formatDate(item.last_modified) }}</div>
       <div class="fm-list-actions">
