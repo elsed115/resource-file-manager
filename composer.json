@@ -28,14 +28,10 @@
     "prefer-stable": true,
     "scripts": {
     "post-install-cmd": [
-        "php artisan storage:link", 
-        "ln -s vendor/elsed115/resource-file-manager/public/svg public/svg",
         "composer require league/flysystem-aws-s3-v3 '^3.0' --with-all-dependencies"
 
     ],
     "post-update-cmd": [
-        "php artisan storage:link", 
-        "ln -s vendor/elsed115/resource-file-manager/public/svg public/svg",
         "composer require league/flysystem-aws-s3-v3 '^3.0' --with-all-dependencies"
 
     ]

@@ -60,11 +60,12 @@ export function isImage(item) {
 
 export function getFileIcon(item) {
   if (item.type === 'folder') {
-    return null;  // Se è una cartella, non c'è icona
+    return null;
   }
   const ext = item.name.split('.').pop().toLowerCase();
-  const iconName = iconMap[ext] || 'default-file';  // Usa il valore di default per estensioni sconosciute
-  return `/svg/${iconName}.svg`;  // Restituisce il percorso relativo alle icone nella cartella public
+  const iconName = iconMap[ext] || 'default-file';
+  // ora l’URL punta a /storage/svg/ICON.svg
+  return `/storage/svg/${iconName}.svg`;
 }
 
 export function onImageError(event) {
