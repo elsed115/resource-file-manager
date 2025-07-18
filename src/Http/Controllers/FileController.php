@@ -72,12 +72,17 @@ class FileController extends Controller
                 $fullPath = rtrim($requestedPath, '/');
             } else {
                 $fullPath = rtrim($rootPath . '/' . $requestedPath, '/');
-            }           
-             Log::info('[FileManager] Full path for listing: ' . $fullPath);
+            }
+            Log::info('[FileManager] Full path for listing: ' . $fullPath);
 
+            // Recupera i file
             $files = collect(Storage::disk($diskName)->files($fullPath))
                 ->map(function ($file) use ($diskName) {
                     try {
+                        // Recupera i tag
+                        $tags = $this->getFileTags($diskName, $file);
+
+                        // Crea l'URL temporaneo
                         $url = Storage::disk($diskName)->temporaryUrl($file, now()->addMinutes(5));
                         Log::info('[FileManager] Generated temporary URL for ' . $file . ': ' . $url);
                         return [
@@ -87,6 +92,7 @@ class FileController extends Controller
                             'size' => Storage::disk($diskName)->size($file),
                             'last_modified' => Storage::disk($diskName)->lastModified($file),
                             'url' => $url,
+                            'tags' => $tags,  // Aggiungi i tag
                         ];
                     } catch (UnableToRetrieveMetadata $e) {
                         Log::warning("[FileManager] Could not retrieve metadata for file: {$file}. Error: " . $e->getMessage());
@@ -97,19 +103,23 @@ class FileController extends Controller
                     }
                 })->filter();
 
+            // Recupera le cartelle
             $directories = collect(Storage::disk($diskName)->directories($fullPath))
                 ->map(function ($dir) {
                     return [
                         'name' => basename($dir),
                         'path' => $dir,
                         'type' => 'folder',
+                        'tags' => []  // Nessun tag per le cartelle
                     ];
                 });
 
+            // Combina file e cartelle, ordina e applica la paginazione
             $allItems = $files->merge($directories)->sortBy('name')->values();
             $total = $allItems->count();
             $paginatedItems = $allItems->forPage($page, $perPage)->values();
 
+            // Risposta finale con paginazione e breadcrumb
             $responsePayload = [
                 'files' => $paginatedItems,
                 'breadcrumbs' => $this->generateBreadcrumbs($rootPath, $requestedPath),
@@ -131,6 +141,32 @@ class FileController extends Controller
         } catch (\Exception $e) {
             Log::error('[FileManager] An unexpected error occurred: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
             return response()->json(['error' => 'An unexpected error occurred on the server.'], 500);
+        }
+    }
+
+    /**
+     * Recupera i tag associati a un file su S3/MinIO
+     */
+    private function getFileTags($diskName, $file)
+    {
+        try {
+            $client = Storage::disk($diskName)->getAdapter()->getClient();
+            $bucket = env('MINIO_BUCKET');  // Usa il bucket MinIO configurato
+
+            // Recupera i tag
+            $result = $client->getObjectTagging([
+                'Bucket' => $bucket,
+                'Key'    => $file,
+            ]);
+
+            // Estrai e restituisci i tag come un array associativo
+            return collect($result->get('TagSet'))
+                ->pluck('Value', 'Key')
+                ->toArray();
+
+        } catch (\Exception $e) {
+            Log::warning("[FileManager] Error retrieving tags for file: {$file}. Error: " . $e->getMessage());
+            return [];  // Nessun tag trovato
         }
     }
 
