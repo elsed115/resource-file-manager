@@ -102,7 +102,7 @@ class FileController extends Controller
                         return null;
                     }
                 })->filter();
-
+            Log::info($files);
             // Recupera le cartelle
             $directories = collect(Storage::disk($diskName)->directories($fullPath))
                 ->map(function ($dir) {
@@ -148,41 +148,43 @@ class FileController extends Controller
      * Recupera i tag associati a un file su S3/MinIO
      */
 
-private function getFileTags($diskName, $file)
-{
-    try {
-        // Ottieni la configurazione del disco
-        $cfg = config("filesystems.disks.$diskName");
+    private function getFileTags($diskName, $file)
+    {
+        try {
+            // Ottieni la configurazione del disco dal file system
+            $cfg = config("filesystems.disks.$diskName");
 
-        // Crea l'istanza del client S3
-        $client = new S3Client([
-            'version' => 'latest',
-            'region' => $cfg['region'],
-            'endpoint' => $cfg['endpoint'] ?? null,
-            'credentials' => [
-                'key' => $cfg['key'],
-                'secret' => $cfg['secret'],
-            ],
-        ]);
+            // Crea l'istanza del client S3
+            $client = new S3Client([
+                'version' => 'latest',
+                'region' => $cfg['region'],
+                'endpoint' => $cfg['endpoint'],  // Utilizza l'endpoint specificato (ad esempio, storage.inext.ai:9001)
+                'credentials' => [
+                    'key' => $cfg['key'],
+                    'secret' => $cfg['secret'],
+                ],
+                'use_path_style_endpoint' => true,  // Assicurati che MinIO usi il path-style per l'endpoint
+            ]);
 
-        $bucket = $cfg['bucket']; // Usa il bucket configurato
+            $bucket = $cfg['bucket']; // Il bucket è configurato nel file di configurazione
 
-        // Recupera i tag
-        $result = $client->getObjectTagging([
-            'Bucket' => $bucket,
-            'Key'    => $file,
-        ]);
+            // Recupera i tag del file
+            $result = $client->getObjectTagging([
+                'Bucket' => $bucket,
+                'Key'    => $file,  // Percorso del file
+            ]);
 
-        // Estrai e restituisci i tag come un array associativo
-        return collect($result->get('TagSet'))
-            ->pluck('Value', 'Key')
-            ->toArray();
+            // Estrai e restituisci i tag come un array associativo
+            return collect($result->get('TagSet'))
+                ->pluck('Value', 'Key')
+                ->toArray();
 
-    } catch (\Exception $e) {
-        Log::warning("[FileManager] Error retrieving tags for file: {$file}. Error: " . $e->getMessage());
-        return [];  // Nessun tag trovato
+        } catch (\Exception $e) {
+            Log::warning("[FileManager] Error retrieving tags for file: {$file}. Error: " . $e->getMessage());
+            return [];  // Se non ci sono tag, restituiamo un array vuoto
+        }
     }
-}
+
 
 
     public function generateTempLink(NovaRequest $request)
