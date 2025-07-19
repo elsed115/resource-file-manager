@@ -10,8 +10,28 @@ class ResourceFileManager extends ResourceTool
     protected ?Closure $filesystemCallback = null;
 
     /**
-     * Imposta le opzioni per il tipo di file,
-     * e le rende disponibili al front-end via `meta`.
+     * Costruttore: fissa il nome del componente Vue.
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        $this->withMeta([
+            'typeOptions' => [], // default
+        ]);
+    }
+
+    public function name(): string
+    {
+        return 'Resource File Manager';
+    }
+
+    public function component(): string
+    {
+        return 'resource-file-manager';
+    }
+
+    /**
+     * Permette di passare le opzioni di tipo dinamiche.
      */
     public function assignType(array $options): self
     {
@@ -20,16 +40,9 @@ class ResourceFileManager extends ResourceTool
         ]);
     }
 
-    public function name()
-    {
-        return 'Resource File Manager';
-    }
-
-    public function component()
-    {
-        return 'resource-file-manager';
-    }
-
+    /**
+     * Se necessario, permette di cambiare filesystem via callback.
+     */
     public function filesystem(Closure $callback): self
     {
         $this->filesystemCallback = $callback;
@@ -39,8 +52,13 @@ class ResourceFileManager extends ResourceTool
     public function resolveFilesystem($request)
     {
         if ($this->filesystemCallback) {
-            return call_user_func($this->filesystemCallback, $request);
+            return \call_user_func($this->filesystemCallback, $request);
         }
         return \Storage::disk('minio');
+    }
+
+    public function hasCustomFilesystem(): bool
+    {
+        return (bool) $this->filesystemCallback;
     }
 }
