@@ -4,48 +4,42 @@ namespace Elsed\ResourceFileManager;
 
 use Laravel\Nova\ResourceTool;
 use Closure;
+use Laravel\Nova\Fields\Field;
 
 class ResourceFileManager extends ResourceTool
 {
-    protected ?Closure $filesystemCallback = null;
-    protected array $typeOptions = []; // Per salvare le opzioni dinamiche dei tipi
-
     /**
-     * Aggiunge le opzioni per il tipo (passate dal componente padre).
+     * Get the displayable name of the resource tool.
      *
-     * @param array $options
-     * @return $this
+     * @return string
      */
-    public function typeOptions(array $options): self
-    {
-        $this->typeOptions = $options;
-        return $this;
-    }
-
-    /**
-     * Rende le opzioni disponibili per Vue.
-     *
-     * @param $request
-     * @return array
-     */
-    public function resolveTypeOptions($request): array
-    {
-        return $this->typeOptions;
-    }
-
     public function name()
     {
         return 'Resource File Manager';
     }
 
+    /**
+     * Get the component name for the resource tool.
+     *
+     * @return string
+     */
     public function component()
     {
         return 'resource-file-manager';
     }
 
-    public function filesystem(Closure $callback): self
+    protected ?Closure $filesystemCallback = null;
+    protected array $typeOptions = []; // Aggiungi questa variabile per memorizzare le opzioni dei tipi.
+
+    /**
+     * Imposta le opzioni per il tipo di file.
+     *
+     * @param array $options
+     * @return $this
+     */
+    public function assignType(array $options): self
     {
-        $this->filesystemCallback = $callback;
+        $this->typeOptions = $options;
         return $this;
     }
 
@@ -60,5 +54,16 @@ class ResourceFileManager extends ResourceTool
     public function hasCustomFilesystem(): bool
     {
         return (bool) $this->filesystemCallback;
+    }
+
+    /**
+     * Ritorna le opzioni dei tipi.
+     *
+     * @return array
+     */
+    public function getTypeOptions(): array
+    {
+        Log::info('Getting type options', ['options' => $this->typeOptions]);
+        return $this->typeOptions;
     }
 }
