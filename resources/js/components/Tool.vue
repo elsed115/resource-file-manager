@@ -134,8 +134,6 @@ import { isImage, isPdf, isWord, isExcel, isArchive, onImageError } from '../uti
 
 // Props
 const props = defineProps(['resourceName', 'resourceId', 'panel', 'resource']);
-console.log(props.panel);
-console.log(props.panel.fields[0].typeOptions);
 const typeOptions = computed(() => props.panel.fields[0].typeOptions || []);
 
 const titolo = computed(() => props.panel.name || 'Gestione File');

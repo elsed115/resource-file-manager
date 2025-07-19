@@ -31,14 +31,12 @@ class FileController extends Controller
         $modelClass = '\\App\\Models\\' . Str::studly(Str::singular($resourceName));
 
         if (!class_exists($modelClass)) {
-            Log::error('[FileManager] Resource model not found for key: ' . $resourceName);
             abort(404, 'Resource model not found.');
         }
 
         $model = (new $modelClass)->findOrFail($resourceId);
 
         if (!method_exists($model, 'resourceFileManagerDisk') || !method_exists($model, 'resourceFileManagerRootPath')) {
-            Log::error('[FileManager] Model ' . get_class($model) . ' does not implement required methods.');
             abort(500, 'The resource model must implement resourceFileManagerDisk() and resourceFileManagerRootPath() methods.');
         }
 
@@ -50,17 +48,14 @@ class FileController extends Controller
      */
     public function list(NovaRequest $request)
     {
-        Log::info('[FileManager] List method called.', $request->all());
 
         try {
             $model = $this->getResourceModel($request);
             $diskName = $model->resourceFileManagerDisk();
-            Log::info('[FileManager] Using disk: ' . $diskName);
             $rootPath = $model->resourceFileManagerRootPath();
             $requestedPath = $request->input('path', '');
             $page = $request->input('page', 1);
             $perPage = $request->input('perPage', 15);
-            Log::info('[FileManager] Requested path: ' . $requestedPath);
 
             // Security check: Prevent directory traversal
             if (Str::contains($requestedPath, '..')) {
@@ -73,7 +68,6 @@ class FileController extends Controller
             } else {
                 $fullPath = rtrim($rootPath . '/' . $requestedPath, '/');
             }
-            Log::info('[FileManager] Full path for listing: ' . $fullPath);
 
             // Recupera i file
             $files = collect(Storage::disk($diskName)->files($fullPath))
@@ -84,7 +78,6 @@ class FileController extends Controller
 
                         // Crea l'URL temporaneo
                         $url = Storage::disk($diskName)->temporaryUrl($file, now()->addMinutes(5));
-                        Log::info('[FileManager] Generated temporary URL for ' . $file . ': ' . $url);
 
                         return [
                             'name' => basename($file),
@@ -96,10 +89,8 @@ class FileController extends Controller
                             'tags' => $tags ?: '-',  // Imposta '-' se non ci sono tag
                         ];
                     } catch (UnableToRetrieveMetadata $e) {
-                        Log::warning("[FileManager] Could not retrieve metadata for file: {$file}. Error: " . $e->getMessage());
                         return null;
                     } catch (\Exception $e) {
-                        Log::error("[FileManager] Error generating temporary URL for file: {$file}. Error: " . $e->getMessage());
                         return null;
                     }
                 })->filter();
@@ -133,15 +124,12 @@ class FileController extends Controller
                 ],
             ];
 
-            Log::info('[FileManager] Sending response payload.', $responsePayload);
 
             return response()->json($responsePayload);
 
         } catch (ModelNotFoundException $e) {
-            Log::error('[FileManager] Resource not found: ' . $e->getMessage());
             return response()->json(['error' => 'Resource not found.'], 404);
         } catch (\Exception $e) {
-            Log::error('[FileManager] An unexpected error occurred: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
             return response()->json(['error' => 'An unexpected error occurred on the server.'], 500);
         }
     }
@@ -186,10 +174,8 @@ class FileController extends Controller
             return $tags;  // Restituisce il valore direttamente come stringa
 
         } catch (\Aws\Exception\AwsException $e) {
-            Log::error("[FileManager] Error retrieving tags for file: {$file}. Error: " . $e->getMessage());
             return null;  // Se c'è un errore, ritorna null
         } catch (\Exception $e) {
-            Log::error("[FileManager] General error retrieving tags for file: {$file}. Error: " . $e->getMessage());
             return null;
         }
     }
@@ -252,7 +238,6 @@ class FileController extends Controller
      */
     public function upload(NovaRequest $request)
     {
-        Log::info('[FileManager] Upload method called.', $request->all());
         try {
             $request->validate([
                 'file' => 'required|file',
@@ -282,10 +267,8 @@ class FileController extends Controller
 
             return response()->json(['success' => true, 'path' => $uploadPath]);
         } catch (ModelNotFoundException $e) {
-            Log::error('[FileManager] Resource not found during upload: ' . $e->getMessage());
             return response()->json(['error' => 'Resource not found.'], 404);
         } catch (\Exception $e) {
-            Log::error('[FileManager] An unexpected error occurred during upload: ' . $e->getMessage());
             return response()->json(['error' => 'An unexpected error occurred on the server.'], 500);
         }
     }
@@ -296,7 +279,6 @@ class FileController extends Controller
      */
     public function createFolder(NovaRequest $request)
     {
-        Log::info('[FileManager] CreateFolder method called.', $request->all());
         try {
             $request->validate(['folderName' => 'required|string|max:255']);
 
@@ -320,10 +302,8 @@ class FileController extends Controller
 
             return response()->json(['success' => true]);
         } catch (ModelNotFoundException $e) {
-            Log::error('[FileManager] Resource not found during folder creation: ' . $e->getMessage());
             return response()->json(['error' => 'Resource not found.'], 404);
-        } catch (\Exception $e) {
-            Log::error('[FileManager] An unexpected error occurred during folder creation: ' . $e->getMessage());
+        } catch (\Exception $e) {  
             return response()->json(['error' => 'An unexpected error occurred on the server.'], 500);
         }
     }
@@ -467,7 +447,6 @@ public function rename(NovaRequest $request)
      */
     public function download(NovaRequest $request)
     {
-        Log::info('[FileManager] Download method called.', $request->all());
         try {
             $validated = $request->validate(['path' => 'required|string']);
 
@@ -482,13 +461,11 @@ public function rename(NovaRequest $request)
             $realPath = $path;
 
             if (!Storage::disk($diskName)->exists($realPath)) {
-                Log::warning('[FileManager] Download failed: File not found at ' . $realPath);
                 abort(404, 'File not found.');
             }
 
             return Storage::disk($diskName)->download($realPath);
         } catch (\Exception $e) {
-            Log::error('[FileManager] An unexpected error occurred during download: ' . $e->getMessage());
             return response()->json(['error' => 'An unexpected error occurred on the server.'], 500);
         }
     }
@@ -572,10 +549,8 @@ public function rename(NovaRequest $request)
 
             return response()->json(['message' => 'Tipo assegnato con successo!']);
         } catch (\Aws\Exception\AwsException $e) {
-            Log::error("[FileManager] Error assigning type: " . $e->getMessage());
             return response()->json(['error' => 'Errore nell\'assegnazione del tipo.'], 500);
         } catch (\Exception $e) {
-            Log::error("[FileManager] General error assigning type: " . $e->getMessage());
             return response()->json(['error' => 'Errore inaspettato nell\'assegnazione del tipo.'], 500);
         }
     }
