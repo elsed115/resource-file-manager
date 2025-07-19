@@ -134,10 +134,10 @@ import { isImage, isPdf, isWord, isExcel, isArchive, onImageError } from '../uti
 
 // Props
 const props = defineProps(['resourceName', 'resourceId', 'field']);
+console.log(props);
+const typeOptions = computed(() => props.field?.typeOptions || []);
 
-const typeOptions = computed(() => props.field.typeOptions || []);
-
-const titolo = computed(() => props.field.name || 'Gestione File');
+const titolo = computed(() => props.field?.name || 'Gestione File');
 // State
 const loading = ref(true);
 const allItems = ref([]);
