@@ -16,6 +16,7 @@ class ResourceFileManager extends ResourceTool
     {
         parent::__construct();
         $this->withMeta([
+            'name' => $this->name(),
             'typeOptions' => [], // default
         ]);
     }
