@@ -4,7 +4,7 @@
     class="modal fixed inset-0 z-[60] px-3 md:px-0 py-3 md:py-6 overflow-x-hidden overflow-y-auto"
     style="background-color: rgba(0, 0, 0, 0.5);"
     role="dialog"
-    @click.self="$emit('close')"
+    @click.self="handleClose"
   >
     <div class="relative mx-auto z-20 max-w-2xl text-left">
       <form @submit.prevent="handleAssign" autocomplete="off"
@@ -21,6 +21,7 @@
             <select
               id="type"
               v-model="selectedType"
+              @change="updateSelectedType"
               class="mt-1 block w-full form-control form-input form-input-bordered"
               required
             >
@@ -37,7 +38,7 @@
         </div>
         <div class="bg-gray-100 dark:bg-gray-700 px-6 py-3 flex" style="margin-top:30px">
           <div class="flex items-center ml-auto">
-            <button type="button" @click="$emit('close')"
+            <button type="button" @click="handleClose"
                     class="ml-auto mr-3 appearance-none bg-transparent font-bold text-gray-400 hover:text-gray-300 active:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400 dark:active:text-gray-600 dark:hover:bg-gray-800 cursor-pointer rounded text-sm focus:outline-none focus:ring ring-primary-200 dark:ring-gray-600 inline-flex items-center justify-center h-9 px-3">
               Annulla
             </button>
@@ -57,28 +58,32 @@ import { ref, watch } from 'vue';
 
 const props = defineProps({
   show:       Boolean,
+  modelValue: String,
   typeOptions: {
     type: Array,
     default: () => []
   }
 });
 
-const emit = defineEmits(['close', 'assign']);
+const emit = defineEmits(['close', 'assign', 'update:modelValue']);
 
-// inizializzo con il primo elemento dell'array (se esiste)
-const selectedType = ref(props.typeOptions[0]?.value || '');
+const selectedType = ref(props.modelValue);
 
-// se in runtime props.typeOptions può cambiare, aggiorno selectedType di conseguenza
-watch(() => props.typeOptions, (newOpts) => {
-  if (newOpts.length && !newOpts.find(o => o.value === selectedType.value)) {
-    selectedType.value = newOpts[0].value;
-  }
+watch(() => props.modelValue, (newValue) => {
+    selectedType.value = newValue;
 });
 
 const handleAssign = () => {
   emit('assign', selectedType.value);
-  emit('close');
 };
+
+const handleClose = () => {
+    emit('close');
+}
+
+const updateSelectedType = (event) => {
+    emit('update:modelValue', event.target.value);
+}
 </script>
 
 <style scoped>

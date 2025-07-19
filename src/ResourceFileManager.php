@@ -5,7 +5,7 @@ namespace Elsed\ResourceFileManager;
 use Laravel\Nova\ResourceTool;
 use Closure;
 
-class ResourceFileManager extends ResourceTool
+class ResourceFileManager extends ResourceTool 
 {
     protected ?Closure $filesystemCallback = null;
 
@@ -33,7 +33,7 @@ class ResourceFileManager extends ResourceTool
     /**
      * Permette di passare le opzioni di tipo dinamiche.
      */
-    public function assignType(array $options): self
+    public function typeOptions(array $options): self
     {
         return $this->withMeta([
             'typeOptions' => $options,

@@ -133,12 +133,11 @@ import { formatSize, formatDate } from '../utils/formatters';
 import { isImage, isPdf, isWord, isExcel, isArchive, onImageError } from '../utils/filetypes';
 
 // Props
-const props = defineProps(['resourceName', 'resourceId', 'fields', 'resource','field']);
-console.log(props);
-const fileManagerField = props.resource.fields?.find(f => f.component === 'resource-file-manager');
-const typeOptions = ref(props.field.meta.typeOptions || []);
+const props = defineProps(['resourceName', 'resourceId', 'field']);
 
-const titolo = fileManagerField?.label || 'Gestione File';
+const typeOptions = computed(() => props.field.typeOptions || []);
+
+const titolo = computed(() => props.field.name || 'Gestione File');
 // State
 const loading = ref(true);
 const allItems = ref([]);
