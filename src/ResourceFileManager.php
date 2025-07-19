@@ -4,42 +4,35 @@ namespace Elsed\ResourceFileManager;
 
 use Laravel\Nova\ResourceTool;
 use Closure;
-use Laravel\Nova\Fields\Field;
 
 class ResourceFileManager extends ResourceTool
 {
+    protected ?Closure $filesystemCallback = null;
+
     /**
-     * Get the displayable name of the resource tool.
-     *
-     * @return string
+     * Imposta le opzioni per il tipo di file,
+     * e le rende disponibili al front-end via `meta`.
      */
+    public function assignType(array $options): self
+    {
+        return $this->withMeta([
+            'typeOptions' => $options,
+        ]);
+    }
+
     public function name()
     {
         return 'Resource File Manager';
     }
 
-    /**
-     * Get the component name for the resource tool.
-     *
-     * @return string
-     */
     public function component()
     {
         return 'resource-file-manager';
     }
 
-    protected ?Closure $filesystemCallback = null;
-    protected array $typeOptions = []; // Aggiungi questa variabile per memorizzare le opzioni dei tipi.
-
-    /**
-     * Imposta le opzioni per il tipo di file.
-     *
-     * @param array $options
-     * @return $this
-     */
-    public function assignType(array $options): self
+    public function filesystem(Closure $callback): self
     {
-        $this->typeOptions = $options;
+        $this->filesystemCallback = $callback;
         return $this;
     }
 
@@ -49,21 +42,5 @@ class ResourceFileManager extends ResourceTool
             return call_user_func($this->filesystemCallback, $request);
         }
         return \Storage::disk('minio');
-    }
-
-    public function hasCustomFilesystem(): bool
-    {
-        return (bool) $this->filesystemCallback;
-    }
-
-    /**
-     * Ritorna le opzioni dei tipi.
-     *
-     * @return array
-     */
-    public function getTypeOptions(): array
-    {
-        Log::info('Getting type options', ['options' => $this->typeOptions]);
-        return $this->typeOptions;
     }
 }
