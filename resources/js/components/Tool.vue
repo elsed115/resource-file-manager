@@ -7,6 +7,22 @@
             <div class="relative h-9 w-full md:w-1/3 md:shrink-0">
                 <SearchInput v-model="searchQuery" />
             </div>
+            <div class="relative h-9 w-full md:w-1/3 md:shrink-0">
+                <select v-model="selectedFilter" class="w-full h-full rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500 border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
+                    <option value="">Tutti i tipi</option>
+                    <optgroup label="Tipi personalizzati">
+                        <option v-for="option in typeOptions" :key="option.value" :value="option.value">
+                            {{ option.label }}
+                        </option>
+                    </optgroup>
+                    <optgroup label="Tipi di file">
+                        <option value="image/jpeg">JPEG</option>
+                        <option value="image/png">PNG</option>
+                        <option value="application/pdf">PDF</option>
+                        <option value="application/zip">ZIP</option>
+                    </optgroup>
+                </select>
+            </div>
             <div class="inline-flex items-center gap-2 ml-auto">
                 <ActionButton @click="showCreateFolderModal = true" dusk="create-folder-button">
                     <span class="md:inline-block">Crea Cartella</span>
@@ -147,6 +163,7 @@ const perPage = ref(15);
 const perPageOptions = [5, 15, 30, 50, 100];
 const isDragging = ref(false);
 const searchQuery = ref('');
+const selectedFilter = ref(''); // Aggiunto per il filtro
 const viewMode = ref('grid'); // 'grid' or 'list'
 
 // Modals State
@@ -168,22 +185,9 @@ const fileInput = ref(null);
 
 // --- Computed Properties ---
 
-const filteredItems = computed(() => {
-    if (!searchQuery.value) {
-        return allItems.value;
-    }
-    const lowerCaseQuery = searchQuery.value.toLowerCase();
-    return allItems.value.filter(item =>
-        item.name.toLowerCase().includes(lowerCaseQuery)
-    );
-});
-
 const paginatedItems = computed(() => {
-    // If search is active, we might not have pagination from the server for the filtered list.
-    // This example assumes server-side pagination is disabled when searching,
-    // or that the search re-fetches with a query. For simplicity, we'll paginate the filtered list client-side.
-    // A more robust solution would debounce search and fetch from the server.
-    return filteredItems.value;
+    // Il filtraggio e la paginazione sono ora gestiti dal server
+    return allItems.value;
 });
 
 const currentViewComponent = computed(() => (viewMode.value === 'grid' ? GridView : ListView));
@@ -194,6 +198,8 @@ const getApiParams = (extraParams = {}) => ({
     resourceName: props.resourceName,
     resourceId: props.resourceId,
     path: currentPath.value,
+    search: searchQuery.value,
+    filter_type: selectedFilter.value,
     ...extraParams,
 });
 
@@ -203,10 +209,7 @@ const fetchFiles = async () => {
         const response = await Nova.request().get('/api/rfm/list', {
             params: getApiParams({ page: pagination.value?.currentPage || 1, perPage: perPage.value }),
         });
-        allItems.value = response.data.files.sort((a, b) => {
-            if (a.type === b.type) return a.name.localeCompare(b.name);
-            return a.type === 'folder' ? -1 : 1;
-        });
+        allItems.value = response.data.files; // Non è più necessario ordinare qui
         breadcrumbs.value = response.data.breadcrumbs;
         pagination.value = response.data.pagination;
     } catch (error) {
@@ -454,12 +457,17 @@ const cancelEditing = () => {
 
 watch(perPage, () => {
     pagination.value.currentPage = 1;
-    fetchFiles();
+    debouncedFetchFiles();
 });
 
 watch(searchQuery, () => {
-    // For a pure client-side search, no fetch is needed.
-    // For server-side, you would call `debouncedFetchFiles` here.
+    pagination.value.currentPage = 1;
+    debouncedFetchFiles();
+});
+
+watch(selectedFilter, () => {
+    pagination.value.currentPage = 1;
+    debouncedFetchFiles();
 });
 
 onMounted(() => {

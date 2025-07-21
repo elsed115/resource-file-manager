@@ -56,6 +56,7 @@ class FileController extends Controller
             $requestedPath = $request->input('path', '');
             $page = $request->input('page', 1);
             $perPage = $request->input('perPage', 15);
+            $search = $request->input('search', ''); // Aggiunto per la ricerca
 
             // Security check: Prevent directory traversal
             if (Str::contains($requestedPath, '..')) {
@@ -75,6 +76,7 @@ class FileController extends Controller
                     try {
                         // Recupera i tag
                         $tags = $this->getFileTags($diskName, $file);
+                        $mimetype = Storage::disk($diskName)->mimeType($file);
 
                         // Crea l'URL temporaneo
                         $url = Storage::disk($diskName)->temporaryUrl($file, now()->addMinutes(5));
@@ -87,6 +89,7 @@ class FileController extends Controller
                             'last_modified' => Storage::disk($diskName)->lastModified($file),
                             'url' => $url,
                             'tags' => $tags ?: '-',  // Imposta '-' se non ci sono tag
+                            'mimetype' => $mimetype,
                         ];
                     } catch (UnableToRetrieveMetadata $e) {
                         return null;
@@ -103,12 +106,36 @@ class FileController extends Controller
                         'path' => $dir,
                         'type' => 'folder',
                         'tags' => '-',  // Imposta '-' per le cartelle
+                        'mimetype' => 'folder',
                     ];
                 });
 
 
-            // Combina file e cartelle, ordina e applica la paginazione
-            $allItems = $files->merge($directories)->sortBy('name')->values();
+            // Combina file e cartelle
+            $allItems = $files->merge($directories);
+
+            // Filtra per ricerca
+            if (!empty($search)) {
+                $allItems = $allItems->filter(function ($item) use ($search) {
+                    return Str::contains(strtolower($item['name']), strtolower($search));
+                });
+            }
+
+            // Filtra per tipo (mimetype o tag)
+            $filterType = $request->input('filter_type');
+            if ($filterType) {
+                $allItems = $allItems->filter(function ($item) use ($filterType) {
+                    if ($item['type'] === 'folder') {
+                        return true; // Mantieni sempre le cartelle nei risultati
+                    }
+                    // Filtra per mimetype o per tag
+                    return $item['mimetype'] === $filterType || $item['tags'] === $filterType;
+                });
+            }
+
+
+            // ordina e applica la paginazione
+            $allItems = $allItems->sortBy('name')->values();
             $total = $allItems->count();
             $paginatedItems = $allItems->forPage($page, $perPage)->values();
 

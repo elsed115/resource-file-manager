@@ -1,4 +1,4 @@
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import debounce from 'lodash.debounce'
 
 export function useFileManager(resourceName, resourceId) {
@@ -10,6 +10,7 @@ export function useFileManager(resourceName, resourceId) {
   const files   = ref([])
   const loading = ref(false)
   const search  = ref('')
+  const filter = ref('') // Aggiunto per il filtro
   const page    = ref(1)
   const perPage = ref(36)
 
@@ -17,7 +18,15 @@ export function useFileManager(resourceName, resourceId) {
     loading.value = true
     const { data } = await window.Nova.request().get(
       `/nova-vendor/resource-file-manager/files/${resourceName}/${resourceId}`,
-      { params: { path: root.value } }
+      { 
+        params: { 
+          path: root.value,
+          search: search.value,
+          filter: filter.value,
+          page: page.value,
+          perPage: perPage.value
+        } 
+      }
     )
     // aggiorna root e dirs/files
     root.value        = data.root
@@ -29,28 +38,11 @@ export function useFileManager(resourceName, resourceId) {
 
   const basename = path => path.split('/').pop()
 
-  const filtered = computed(() => {
-    const q = search.value.toLowerCase()
-    return {
-      dirs: dirs.value.filter(d => basename(d).toLowerCase().includes(q)),
-      files: files.value.filter(f => basename(f.path).toLowerCase().includes(q))
-    }
-  })
-
-  const totalPages = computed(() =>
-    Math.max(1, Math.ceil((filtered.value.dirs.length + filtered.value.files.length) / perPage.value))
-  )
-
-  const pagedDirs = computed(() =>
-    filtered.value.dirs.slice((page.value-1)*perPage.value, page.value*perPage.value)
-  )
-
-  const pagedFiles = computed(() => {
-    const used  = pagedDirs.value.length
-    const start = (page.value-1)*perPage.value
-                - filtered.value.dirs.slice(0, (page.value-1)*perPage.value).length
-    return filtered.value.files.slice(Math.max(0, start), perPage.value - used)
-  })
+  // La logica di filtraggio e paginazione è ora gestita dal server,
+  // quindi le computed properties `filtered`, `totalPages`, `pagedDirs`, `pagedFiles`
+  // non sono più necessarie e possono essere rimosse o adattate se si vuole
+  // mantenere un filtraggio client-side supplementare.
+  // Per questo esempio, le rimuoviamo per affidarci al backend.
 
   const debouncedFetch = debounce(fetchAll, 300)
 
@@ -59,7 +51,7 @@ export function useFileManager(resourceName, resourceId) {
     const sub = dir.replace(`${defaultRoot.value}/`, '')
     root.value = sub
     page.value = 1
-    fetchAll()
+    debouncedFetch()
   }
 
   function goUp() {
@@ -67,7 +59,7 @@ export function useFileManager(resourceName, resourceId) {
     parts.pop()
     root.value = parts.join('/')
     page.value = 1
-    fetchAll()
+    debouncedFetch()
   }
 
   onMounted(fetchAll)
@@ -79,15 +71,14 @@ export function useFileManager(resourceName, resourceId) {
     files,
     loading,
     search,
+    filter, // Esponi il filtro
     page,
     perPage,
-    filtered,
-    totalPages,
-    pagedDirs,
-    pagedFiles,
+    // Rimuovi le computed non più usate
     basename,
     debouncedFetch,
     enterDir,
     goUp,
+    fetchAll, // Esponi fetchAll per poterla chiamare direttamente
   }
 }
