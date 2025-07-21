@@ -30,6 +30,7 @@
             <header class="fm-header">
                 <Breadcrumbs :crumbs="breadcrumbs" @navigate="navigateTo" />
                 <div class="fm-actions">
+                    <ViewSwitcher v-model="viewMode" />
                     <div class="relative" ref="filterDropdown">
                         <button
                             @click="showFilterDropdown = !showFilterDropdown"
@@ -77,7 +78,6 @@
                             </div>
                         </div>
                     </div>
-                    <ViewSwitcher v-model="viewMode" />
                 </div>
             </header>
 
