@@ -121,21 +121,34 @@ class FileController extends Controller
                 });
             }
 
-            // Filtra per tipo (mimetype o tag)
-            $filterType = $request->input('filter_type');
-            if ($filterType) {
-                $allItems = $allItems->filter(function ($item) use ($filterType) {
+            // Filtra per tag
+            $filterTag = $request->input('filter_tag');
+            if ($filterTag) {
+                $allItems = $allItems->filter(function ($item) use ($filterTag) {
                     if ($item['type'] === 'folder') {
-                        return true; // Mantieni sempre le cartelle nei risultati
+                        return true; // Mantieni sempre le cartelle
                     }
-                    // Filtra per mimetype o per tag
-                    return $item['mimetype'] === $filterType || $item['tags'] === $filterType;
+                    return $item['tags'] === $filterTag;
+                });
+            }
+
+            // Filtra per mimetype
+            $filterMimetype = $request->input('filter_mimetype');
+            if ($filterMimetype) {
+                $allItems = $allItems->filter(function ($item) use ($filterMimetype) {
+                     if ($item['type'] === 'folder') {
+                        return true; // Mantieni sempre le cartelle
+                    }
+                    return $item['mimetype'] === $filterMimetype;
                 });
             }
 
 
-            // ordina e applica la paginazione
-            $allItems = $allItems->sortBy('name')->values();
+            // ordina per cartelle prima, poi per nome e applica la paginazione
+            $allItems = $allItems->sortBy(function($item) {
+                return ($item['type'] === 'folder' ? '0' : '1') . $item['name'];
+            })->values();
+            
             $total = $allItems->count();
             $paginatedItems = $allItems->forPage($page, $perPage)->values();
 

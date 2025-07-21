@@ -7,22 +7,6 @@
             <div class="relative h-9 w-full md:w-1/3 md:shrink-0">
                 <SearchInput v-model="searchQuery" />
             </div>
-            <div class="relative h-9 w-full md:w-1/3 md:shrink-0">
-                <select v-model="selectedFilter" class="w-full h-full rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500 border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
-                    <option value="">Tutti i tipi</option>
-                    <optgroup label="Tipi personalizzati">
-                        <option v-for="option in typeOptions" :key="option.value" :value="option.value">
-                            {{ option.label }}
-                        </option>
-                    </optgroup>
-                    <optgroup label="Tipi di file">
-                        <option value="image/jpeg">JPEG</option>
-                        <option value="image/png">PNG</option>
-                        <option value="application/pdf">PDF</option>
-                        <option value="application/zip">ZIP</option>
-                    </optgroup>
-                </select>
-            </div>
             <div class="inline-flex items-center gap-2 ml-auto">
                 <ActionButton @click="showCreateFolderModal = true" dusk="create-folder-button">
                     <span class="md:inline-block">Crea Cartella</span>
@@ -46,7 +30,53 @@
             <header class="fm-header">
                 <Breadcrumbs :crumbs="breadcrumbs" @navigate="navigateTo" />
                 <div class="fm-actions">
-                    <PerPageSelector v-model="perPage" :options="perPageOptions" />
+                    <div class="relative" ref="filterDropdown">
+                        <button
+                            @click="showFilterDropdown = !showFilterDropdown"
+                            type="button"
+                            class="border text-left appearance-none cursor-pointer rounded text-sm font-bold focus:outline-none focus:ring ring-primary-200 dark:ring-gray-600 relative disabled:cursor-not-allowed inline-flex items-center justify-center bg-transparent border-transparent h-9 px-1.5 text-gray-600 dark:text-gray-400 hover:[&:not(:disabled)]:bg-gray-700/5 dark:hover:[&:not(:disabled)]:bg-gray-950"
+                        >
+                            <span class="flex items-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z"></path></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="w-5 h-5"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"></path></svg>
+                            </span>
+                        </button>
+                        <div v-if="showFilterDropdown" class="absolute z-10 right-0 mt-2 w-64 select-none overflow-hidden bg-white dark:bg-gray-900 shadow-lg rounded-lg border border-gray-200 dark:border-gray-700">
+                            <div class="scroll-wrap overflow-x-hidden overflow-y-auto bg-white dark:bg-gray-900" style="max-height: 350px;">
+                                <div class="divide-y divide-gray-200 dark:divide-gray-800 divide-solid">
+                                    <div class="pt-2 pb-3">
+                                        <h3 class="px-3 text-xs uppercase font-bold tracking-wide">Tipi Personalizzati</h3>
+                                        <div class="mt-1 px-3">
+                                            <select v-model="selectedTag" class="w-full block form-control form-control-bordered form-input h-8 text-xs">
+                                                <option value="">Tutti</option>
+                                                <option v-for="option in typeOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="pt-2 pb-3">
+                                        <h3 class="px-3 text-xs uppercase font-bold tracking-wide">Tipi di File (Mimetype)</h3>
+                                        <div class="mt-1 px-3">
+                                            <select v-model="selectedMimetype" class="w-full block form-control form-control-bordered form-input h-8 text-xs">
+                                                <option value="">Tutti</option>
+                                                <option value="image/jpeg">JPEG</option>
+                                                <option value="image/png">PNG</option>
+                                                <option value="application/pdf">PDF</option>
+                                                <option value="application/zip">ZIP</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="pt-2 pb-3">
+                                        <h3 class="px-3 text-xs uppercase font-bold tracking-wide">Per Pagina</h3>
+                                        <div class="mt-1 px-3">
+                                            <select v-model="perPage" class="w-full block form-control form-control-bordered form-input h-8 text-xs">
+                                                <option v-for="option in perPageOptions" :key="option" :value="option">{{ option }}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <ViewSwitcher v-model="viewMode" />
                 </div>
             </header>
@@ -163,7 +193,9 @@ const perPage = ref(15);
 const perPageOptions = [5, 15, 30, 50, 100];
 const isDragging = ref(false);
 const searchQuery = ref('');
-const selectedFilter = ref(''); // Aggiunto per il filtro
+const selectedTag = ref('');
+const selectedMimetype = ref('');
+const showFilterDropdown = ref(false);
 const viewMode = ref('grid'); // 'grid' or 'list'
 
 // Modals State
@@ -199,7 +231,8 @@ const getApiParams = (extraParams = {}) => ({
     resourceId: props.resourceId,
     path: currentPath.value,
     search: searchQuery.value,
-    filter_type: selectedFilter.value,
+    filter_tag: selectedTag.value,
+    filter_mimetype: selectedMimetype.value,
     ...extraParams,
 });
 
@@ -465,13 +498,25 @@ watch(searchQuery, () => {
     debouncedFetchFiles();
 });
 
-watch(selectedFilter, () => {
+watch(selectedTag, () => {
+    pagination.value.currentPage = 1;
+    debouncedFetchFiles();
+});
+
+watch(selectedMimetype, () => {
     pagination.value.currentPage = 1;
     debouncedFetchFiles();
 });
 
 onMounted(() => {
     fetchFiles();
+    // Chiudi il dropdown se si clicca fuori
+    document.addEventListener('click', (event) => {
+        const filterDropdown = document.querySelector('[ref="filterDropdown"]');
+        if (filterDropdown && !filterDropdown.contains(event.target)) {
+            showFilterDropdown.value = false;
+        }
+    });
 });
 
 </script>
@@ -572,5 +617,24 @@ onMounted(() => {
 
   /* ---------- INPUT HIDDEN ---------- */
   .hidden { display: none; }
+  .form-control {
+    background-color: #fff;
+    border-color: #d1d5db;
+    border-width: 1px;
+    border-radius: 0.375rem;
+    padding-left: 0.75rem;
+    padding-right: 2rem;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+}
+.dark .form-control {
+    background-color: #1f2937;
+    border-color: #4b5563;
+    color: #d1d5db;
+}
 </style>
 
